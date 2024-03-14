@@ -1,0 +1,40 @@
+
+version: "3.9"
+
+services:
+  app:
+    container_name: hackaton-backend-develop
+    image: hackaton-backend-develop
+    build:
+      context: .
+    restart: always
+    volumes:
+      - static-data:/vol/web
+    environment:
+      - DB_HOST=db
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - SECRET_KEY=${DJANGO_SECRET_KEY}
+      - ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.hackaton-backend.loadbalancer.server.port=8000
+      - traefik.http.routers.hackaton-backend.entrypoints=http
+      - traefik.http.routers.hackaton-backend.rule=Host(`192.168.201.139`) && PathPrefix(`/api`)
+      - traefik.docker.network=backend-network
+    networks:
+      - backend-network
+      - frontend-network
+
+
+volumes:
+  static-data:
+  redis_volume_data:
+
+networks:
+  backend-network:
+    external: true
+  frontend-network:
+    external: true
